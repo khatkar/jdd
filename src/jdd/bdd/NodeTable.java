@@ -8,12 +8,12 @@ import jdd.bdd.debug.*;
 import java.util.*;
 
 /**
- * implementation of a node table of elements (var,low,high,ref-count) that supports garbage collections.
+ * Implementation of a node table of elements (var,low,high,ref-count) that supports garbage collections.
  *
  */
 
-// the nodes are unique, which is guranteed by a double linked list hash-table-alike structure.
-// this structure is very similiar to the double-hashed list in BuDDy.
+// the nodes are unique, which is guaranteed by a double linked list hash-table-alike structure.
+// this structure is very similar to the double-hashed list in BuDDy.
 //
 // we divide the node list and the linked-list into to parts (t_nodes, t_list).
 // this gives a bad cache performance (CPU cache, not BDD operation caches),
@@ -63,10 +63,10 @@ public class NodeTable {
 	public NodeTable(int nodesize) {
 		debugers = new LinkedList();
 
-		// we dont like nodetables that are too small
+		// we don't like nodetables that are too small
 		if(nodesize < Configuration.MIN_NODETABLE_SIZE) nodesize = Configuration.MIN_NODETABLE_SIZE;
 
-		// allocate the initial arraus
+		// allocate the initial arrays
 		table_size = nodesize;
 		t_ref = Allocator.allocateShortArray(table_size);
 		t_nodes = Allocator.allocateIntArray(table_size * NODE_WIDTH);
@@ -116,7 +116,7 @@ public class NodeTable {
 	}
 
 	/**
-	 * this function MUST be called when a paramater that may change the tree dpeth
+	 * this function MUST be called when a parameter that may change the tree depth
 	 *  (such as the number of variables in a BDD) has changed!
 	 */
 	protected void tree_depth_changed(int n) {
@@ -195,7 +195,7 @@ public class NodeTable {
 		int old_free = free_nodes_count;
 		first_free_node = free_nodes_count = 0;
 
-		// 1.5 go backward to get the list in correct direction. doesnt really matter :(
+		// 1.5 go backward to get the list in correct direction. doesn't really matter :(
 		for(int i = table_size; i > 2; ) {
 			i--;
 			if(isValid(i) && isNodeMarked(i)) {
@@ -249,14 +249,14 @@ public class NodeTable {
 	 */
 	protected void grow() {
 
-		// if we have no dead nodes, we dont bother to collect garbage,
-		// but the dead-node counter is bot always accurate
+		// if we have no dead nodes, we don't bother to collect garbage,
+		// but the dead-node counter is not always accurate
 		if(dead_nodes > 0 || table_size > Configuration.nodetableSimpleDeadcountThreshold) {
 
 			int got = gc(false);
 			dead_nodes = 0;
 
-			// we might have had DEAD NODES, but that doesnt mean that we can always
+			// we might have had DEAD NODES, but that doesn't mean that we can always
 			// free those nodes (they can be used in some other tree)
 			// furthermore, we must of at least minfreenodes% free nodes or we will grow
 			if(got >= nodesminfree ){
@@ -310,7 +310,7 @@ public class NodeTable {
 		// 3.c) clear the rest.
 		clearPrev(0, old_size); // XXX: how do we embed this in the loop below??
 
-		// 3.d) now seperate the old and new invalid nodes
+		// 3.d) now separate the old and new invalid nodes
 		for(int i = old_size; i > 2; ) {
 			i--;
 			if(isValid(i)) {
@@ -324,13 +324,13 @@ public class NodeTable {
 		}
 
 
-		//4. update internal variables that need to be upated...
+		//4. update internal variables that need to be updated...
 		update_grow_parameters();
 
 		// 5. force all caches to be wiped out!
 		signal_removed();
 
-		// 6. and statictics...
+		// 6. and statistics...
 		time = System.currentTimeMillis() - time;
 		stat_grow_time += time;
 
@@ -355,12 +355,12 @@ public class NodeTable {
 
 
 		// see if we have room for it!
-		if(free_nodes_count < 2 ) { // dont change "2" to "0" !
+		if(free_nodes_count < 2 ) { // Don't change "2" to "0" !
 			grow();
 			hash = compute_hash(v,l,h); // table_size might have changed (or not if we only did a GC)
 		}
 
-		// takke next free node
+		// Take next free node
 		curr = first_free_node;
 		first_free_node = getNext(first_free_node);
 		free_nodes_count--;
@@ -408,7 +408,7 @@ public class NodeTable {
 		nodesminfree = Math.min( (table_size * Configuration.minFreeNodesProcent) / 100, Configuration.maxNodeFree -1);
 	}
 
-	// ---- [resizeing algo] ---------------------------------------------------
+	// ---- [Resizing algo] ---------------------------------------------------
 
 	/** resize the tables */
 	private void resize(int new_size) {
@@ -565,8 +565,8 @@ public class NodeTable {
 	// ----[ node marking ] ----------------------------
 
 	/**
-	 * call this functio to enable the fast variant of the mark_node() function.
-	 * if you do that, you mustlet JDD know the maximum depth of all trees by calling
+	 * call this function to enable the fast variant of the mark_node() function.
+	 * if you do that, you must let JDD know the maximum depth of all trees by calling
 	 * tree_depth_changed() from your sub-class
 	 * @see #tree_depth_changed
 	 */
@@ -602,9 +602,9 @@ public class NodeTable {
 	 * @see #enableStackMarking
 	 */
 	private final void mark_tree_stack(int bdd) {
-		// ok, it works like this:
-		// we dont want to do recursive calls in such a tight functions so we do an
-		// artifical recursive call by haveing out own stack. the stack is "mark_stack"
+		// OK, it works like this:
+		// we don't want to do recursive calls in such a tight functions so we do an
+		// Artificial recursive call by having out own stack. the stack is "mark_stack"
 		// and it is important to have the right size. this is why the user must call
 		// recursive_mark_tree() as soon as the tree depth changes
 
@@ -775,7 +775,7 @@ public class NodeTable {
 				check_node(i);
 	}
 
-	/** check if some node is ok. it actuallt check the whole tree below the node */
+	/** check if some node is OK. it actually check the whole tree below the node */
 	public void check_node(int node, String str) {
 		check_say = str;
 		check_node(node);
@@ -787,7 +787,7 @@ public class NodeTable {
 			Test.check(false, "Node " + node + " invalid " + ((check_say != null) ? check_say : ""));
 		}
 
-		// XXX: this is gode, but we should mark nodes so we dont check them multiple
+		// XXX: this is gode, but we should mark nodes so we don't check them multiple
 		//      times if we are doing anything recursive!
 		// check_node( getLow(node));
 		// check_node( getHigh(node));
@@ -840,7 +840,7 @@ public class NodeTable {
 		int b = nt.add(4,1,0);
 		nt.ref(b);
 
-		// dont save:
+		// Don't save:
 		int c = nt.add(3,0,1);
 		Test.checkEquality( nt.count_free_nodes(), nt.free_nodes_count, "free node count correct (1)");
 
